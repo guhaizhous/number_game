@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="text/javascript" src="/javascripts/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	var socket = io.connect('http://192.168.1.113:3000');
+	socket.on('connection', function (data) {
+	    	console.log("connection",data);
+	});
+    //倒计时显示
+	socket.on('downTime',function (msg) {
+	  	//console.log(msg)
+	  	$("#downTime").text(msg.times);
+	  	$("#numbers").text(msg.numbers);
+	  	$("#qcNo").text(msg.qcNo);
+	});
+    //显示开奖结果及中奖结果
+	socket.on('gameOpen',function(msg){
+	  	$("#numbers").text(msg.numbers);
+        $.post("/getReslut",{            
+            qcNo:$("#qcNo").text()
+          },function(msg,status){
+            $('#reslut').text('');
+            var str ="";
+            var totwin=0;
+            
+            var data =msg.data;
+            if(data===undefined){
+                return;
+            }
+            for (var i = 0; i <data.length; i++) {
+                var win =data[i].multiple*data[i].tot;
+                str += "number:"+ data[i].numbers + "   Amount:"+data[i].tot + "   multiple:"+ data[i].multiple +"    win:"+ win +"</br>"
+                totwin+=win;
+            };
+            $('#reslut').html(str);
+            $("#balance").text(parseInt($("#balance").text())+parseInt(totwin));
+        });
+	});
+    //表单提交处理
+    function submit(){
+        var t=$("#tot").val();
+        var z= /^[0-9]*$/;
+        if(!z.test(t)){
+           $("#tt3").show();
+           return;
+        }else{
+            $("#tt3").hide();
+        }
+        if($("#innumbers").val()!="" && $("#tot").val()!=""){
+          $("#tt1").hide();
+          $("#tt2").hide();
+          $.post("/inserBet",
+          {            
+            innumbers:$("#innumbers").val(),
+            tot:$("#tot").val()
+          },
+          function(data,status){
+            $("#divID").fadeIn(50);
+            $("#divID").text(data.msg);
+            console.log("====",parseInt($("#balance").text()));
+            console.log("====",parseInt(data.tot));
+            $("#balance").text(parseInt($("#balance").text())-parseInt(data.tot));
+            $("#divID").delay(2000).fadeOut("fast");
+          });
+        }else{
+          if($("#innumbers").val()===""){
+              $("#tt1").show();
+          }else{
+            $("#tt1").hide();
+          }
+          if($("#tot").val()===""){
+            $("#tt2").show();
+          }else{
+            $("#tt2").hide();
+          }
+        }
+    }  
+	</script>
+  </head>
+  <body>
+    <h1>猜数游戏</h1>
+    <p>Welcome to <%= title %>    </p> 
+    <li id="userNo"><%=userNo%>  Balance:<span id="balance"><%=userTot%></span></li>
+    <table>    	
+    	<tr>
+    		<td>期次</td>
+    		<td><li id="qcNo">...</li></td>
+    	</tr>
+    	<tr>
+    		<td>开奖倒计时</td>
+    		<td><li id="downTime">...</li></td>
+    	</tr>
+    	<tr>
+    		<td>上期开奖</td>
+    		<td><li id="numbers">- - -</li></td>
+    	</tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>购买号码</td>
+            <td><input id="innumbers" type=""/><div id="tt1" style="display:none; ">不能为空</div></td>
+        </tr>     
+        <tr>
+            <td>购买金额</td>
+            <td><input id="tot" type=""/><div id='tt2' style="display:none; ">不能为空</div><div id='tt3' style="display:none; ">只能为数字</div></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input name="button" id="button" type="button" value="购买" onclick="submit()" /></td>
+        </tr>
+        <tr>
+            <td colspan="2"><div id="divID"></div></td>
+        </tr>
+        <tr>
+            <td colspan="2"><div id="reslut"></div></td>
+        </tr>
+    </table>
+  </body>
+</html>

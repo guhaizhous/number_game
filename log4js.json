@@ -1,0 +1,48 @@
+{  
+    "customBaseDir" :"D:/test/myapp/log/",  
+    "customDefaultAtt" :{  
+        "type": "dateFile",  
+        "absolute": true,  
+        "alwaysIncludePattern": true  
+    },  
+    "appenders": [  
+            {
+	     "type": "console", 
+	     "category": "console"
+	    },  
+            {
+	     "filename": "debug/log.log", 
+	     "pattern": "_yyyy-MM-dd",  
+	     "category": "logDebug",
+	     "backups":4,
+             "maxLogSize":1024,
+	     "alwaysIncludePattern": false            
+	    },  
+            {
+	     "filename": "info/log.log", 
+	     "pattern": "_yyyy-MM-dd",  
+	     "category": "logInfo",
+	     "backups":4,
+             "maxLogSize":1024,
+	     "alwaysIncludePattern":false   
+	     },  
+            {
+	     "filename":"warn/log.log", 
+	     "pattern": "_yyyy-MM-dd",  
+	     "category": "logWarn",
+	     "backups":4,
+             "maxLogSize":1024,
+	     "alwaysIncludePattern": false   
+	     },  
+            {
+	     "filename": "err/log.log", 
+	     "pattern": "_yyyy-MM-dd",  
+	     "category": "logErr",
+	     "backups":4,
+             "maxLogSize":1024,
+	     "alwaysIncludePattern": false 
+	    }  
+        ],  
+        "replaceConsole": true,  
+        "levels":{ "logDebug": "DEBUG", "logInfo": "INFO", "logWarn": "WARN", "logErr": "ERROR"}  
+}  
